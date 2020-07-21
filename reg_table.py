@@ -25,10 +25,18 @@ def table (in_file):
         if match := re.search('SymNamePtr\s*=\s*(\w+)', line):    # left columns (V1, V2, etc)
             ver = match.group(1)
             if DEBUG:
-                print (line, ver)            
+                print (line, ver)      
+
+        if match := re.search('PhysicalRegType\s*=\s*(\d+)', line):
+            if match.group(1) == '0':
+                regIdx = 'R'
+            elif match.group(1) == '7':
+                regIdx = 'I'   
+            if DEBUG:
+                print(line, regIdx)   
 
         if match := re.search('PhysicalRegIdx\s*=\s*(\d+)', line):    # ritght column (R0, R1, R2, etc)
-            regIdx = int(match.group(1))
+            regIdx += match.group(1)
             if DEBUG:
                 print (line, regIdx)
 
@@ -40,7 +48,7 @@ def table (in_file):
             if attribute == '_':
                 continue
         
-            r = 'R' + str(r) + '.' + attribute
+            r += '.' + attribute
             if match := re.search('\[(\w)\]', line):
                 v += '.' + match.group(1)
             
@@ -53,7 +61,8 @@ def table (in_file):
         # if match := re.search('PhysicalSwizzles[(\w+)]\s*=\s(\w+)', line):
         #     if match.group(2) == 'w':
             if attribute == 'w':
-                regIdx += 1
+                num = int(regIdx[1]) + 1
+                regIdx = regIdx[0] + str(num)
     
     return table_dic
 
